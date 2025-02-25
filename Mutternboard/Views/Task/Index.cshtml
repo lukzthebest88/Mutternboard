@@ -12,11 +12,13 @@
             <table class="table table-hover text-center align-middle">
                 <thead class="table-dark">
                     <tr>
+                        <th>Name</th>
                         <th>Titel</th>
                         <th>Beschreibung</th>
                         <th>Von</th>
                         <th>Bis</th>
                         <th>Priorität</th>
+                        <th>Status</th>
                         <th>Aktionen</th>
                     </tr>
                 </thead>
@@ -24,15 +26,35 @@
                     @foreach (var item in Model)
                     {
                         <tr class="@GetPriorityClass(item.Priority)">
+                            <td>@(item.User.UserName.Split('@')[0])</td>
                             <td>@item.Title</td>
                             <td>@item.Description</td>
                             <td>@item.StartDate.ToShortDateString()</td>
                             <td>@item.EndDate.ToShortDateString()</td>
-                            <td><span class="badge @GetPriorityBadge(item.Priority)">@item.Priority</span></td>
+                            <td><span class="badge @GetPriorityBadge(item.Priority)">@GetPriorityName(item.Priority)</span></td>
                             <td>
-                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">✏️ Bearbeiten</a>
+                                <span class="badge @(item.IsCompleted ? "bg-success" : "bg-warning text-dark")">
+                                    @(item.IsCompleted ? "Erledigt" : "Offen")
+                                </span>
+                            </td>
+                            <td>
+                                @if (!item.IsCompleted)
+                                {
+                                    <form asp-action="CompleteTask" asp-controller="Task" method="post" class="d-inline">
+                                        <input type="hidden" name="id" value="@item.Id" />
+                                        <button type="submit" class="btn btn-sm btn-success">✅</button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <form asp-action="ReopenTask" asp-controller="Task" method="post" class="d-inline">
+                                        <input type="hidden" name="id" value="@item.Id" />
+                                        <button type="submit" class="btn btn-sm btn-warning">🔄</button>
+                                    </form>
+                                }
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-info">✏️</a>
                                 <form asp-action="DeleteConfirmed" asp-route-id="@item.Id" method="post" class="d-inline">
-                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Möchtest du diese Aufgabe wirklich löschen?')">🗑️ Löschen</button>
+                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Möchtest du diese Aufgabe wirklich löschen?')">🗑️</button>
                                 </form>
                             </td>
                         </tr>
@@ -40,29 +62,32 @@
                 </tbody>
             </table>
         </div>
+        <a asp-action="Index" asp-controller="Home" class="btn btn-secondary">Zurück</a>
     </div>
 </div>
 
 @functions {
-    string GetPriorityClass(string priority)
+    string GetPriorityClass(string priority) => priority switch
     {
-        return priority switch
-        {
-            "Hoch" => "table-danger",
-            "Mittel" => "table-warning",
-            "Niedrig" => "table-success",
-            _ => "table-light"
-        };
-    }
+        "2" => "table-danger",
+        "1" => "table-warning",
+        "0" => "table-success",
+        _ => "table-light"
+    };
 
-    string GetPriorityBadge(string priority)
+    string GetPriorityBadge(string priority) => priority switch
     {
-        return priority switch
-        {
-            "Hoch" => "bg-danger",
-            "Mittel" => "bg-warning text-dark",
-            "Niedrig" => "bg-success",
-            _ => "bg-secondary"
-        };
-    }
+        "2" => "bg-danger",
+        "1" => "bg-warning text-dark",
+        "0" => "bg-success",
+        _ => "bg-secondary"
+    };
+
+    string GetPriorityName(string priority) => priority switch
+    {
+        "2" => "Hoch",
+        "1" => "Mittel",
+        "0" => "Niedrig",
+        _ => "EXTREM"
+    };
 }
