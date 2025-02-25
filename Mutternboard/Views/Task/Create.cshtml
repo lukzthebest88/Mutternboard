@@ -41,7 +41,7 @@
                     {
                         @foreach (var user in ViewBag.Users)
                         {
-                            <option value="@user.Id">@user.UserName</option>
+                            <option value="@user.Id">@user.UserName.Split('@')[0]</option>
                         }
                     }
                 </select>

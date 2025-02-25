@@ -2,34 +2,61 @@
 
 <div class="container mt-4">
     <div class="card shadow-lg p-4">
+        <h2 class="text-center mb-4">
+            @(Model.Any(t => !t.IsCompleted) ? "Deine Aufgaben" : "Alle Aufgaben erledigt 🎉")
+        </h2>
 
-        <h2 class="text-center mb-4">Deine Aufgaben</h2>
-
-        <div class="table-responsive">
-            <table class="table table-hover text-center align-middle">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Titel</th>
-                        <th>Beschreibung</th>
-                        <th>Von</th>
-                        <th>Bis</th>
-                        <th>Priorität</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model.OrderByDescending(t => t.Priority))
-                    {
-                        <tr class="@GetPriorityClass(item.Priority)">
-                            <td>@item.Title</td>
-                            <td>@item.Description</td>
-                            <td>@item.StartDate.ToShortDateString()</td>
-                            <td>@item.EndDate.ToShortDateString()</td>
-                            <td><span class="badge @GetPriorityBadge(item.Priority)">@GetPriorityName(item.Priority)</span></td>
+        @if (Model.Any(t => !t.IsCompleted))
+        {
+            <div class="table-responsive">
+                <table class="table table-hover text-center align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Titel</th>
+                            <th>Beschreibung</th>
+                            <th>Von</th>
+                            <th>Bis</th>
+                            <th>Priorität</th>
+                            <th>Status</th>
+                            <th>Aktionen</th>
                         </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.OrderByDescending(t => t.Priority))
+                        {
+                            if (!item.IsCompleted)
+                            {
+                                <tr class="@GetPriorityClass(item.Priority)">
+                                    <td>@item.Title</td>
+                                    <td>@item.Description</td>
+                                    <td>@item.StartDate.ToShortDateString()</td>
+                                    <td>@item.EndDate.ToShortDateString()</td>
+                                    <td><span class="badge @GetPriorityBadge(item.Priority)">@GetPriorityName(item.Priority)</span></td>
+                                    <td>
+                                        <span class="badge @(item.IsCompleted ? "bg-success" : "bg-warning text-dark")">
+                                            @(item.IsCompleted ? "Erledigt" : "Offen")
+                                        </span>
+                                    </td>
+                                    <td>
+                                        @if (!item.IsCompleted)
+                                        {
+                                            <form asp-action="CompleteTask" asp-controller="Task" method="post" class="d-inline">
+                                                <input type="hidden" name="id" value="@item.Id" />
+                                                <button type="submit" class="btn btn-sm btn-success">Erledigen</button>
+                                            </form>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">✔️</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
     </div>
 </div>
 
@@ -50,14 +77,11 @@
         _ => "bg-secondary"
     };
 
-    string GetPriorityName(string priority)
+    string GetPriorityName(string priority) => priority switch
     {
-        return priority switch
-        {
-            "2" => "Hoch",
-            "1" => "Mittel",
-            "0" => "Niedrig",
-            _ => "EXTREM"
-        };
-    }
+        "2" => "Hoch",
+        "1" => "Mittel",
+        "0" => "Niedrig",
+        _ => "EXTREM"
+    };
 }

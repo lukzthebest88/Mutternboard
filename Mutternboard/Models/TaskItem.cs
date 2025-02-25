@@ -32,6 +32,8 @@ namespace Mutterboard.Models
         public string Priority { get; set; }
         public string UserId { get; set; }  // <- UserId als Fremdschlüssel
         public ApplicationUser? User { get; set; }  // <- Beziehung zu Identity User
+        public bool IsCompleted { get; set; } = false; // Standardmäßig nicht erledigt
+
     }
 
 }

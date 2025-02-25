@@ -20,6 +20,7 @@ namespace Mutterboard.Controllers
             _userManager = userManager;
         }
 
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Index()
         {
             var userId = _userManager.GetUserId(User);
@@ -159,7 +160,37 @@ namespace Mutterboard.Controllers
             return RedirectToAction("Index"); // Zurück zur Admin-Panel-Übersicht
         }
 
+        [HttpPost]
+        public async Task<IActionResult> CompleteTask(int id)
+        {
+            var task = await _context.TaskItems.FindAsync(id);
+            if (task == null)
+            {
+                return NotFound();
+            }
 
+            task.IsCompleted = true;
+            _context.TaskItems.Update(task);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ReopenTask(int id)
+        {
+            var task = await _context.TaskItems.FindAsync(id);
+            if (task == null)
+            {
+                return NotFound();
+            }
+
+            task.IsCompleted = false;
+            _context.TaskItems.Update(task);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
+        }
 
     }
 }
