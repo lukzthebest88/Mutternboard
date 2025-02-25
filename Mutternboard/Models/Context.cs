@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Mutternboard.Models;
 
 namespace Mutterboard.Models
 {
-    public class Context : IdentityDbContext<ApplicationUser>
+    public class Context : IdentityDbContext<ApplicationUser, ApplicationRole, string>
     {
         public Context(DbContextOptions<Context> options) : base(options) { }
 
@@ -12,6 +14,19 @@ namespace Mutterboard.Models
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+
+            // Setze `nvarchar(max)` auf `longtext` für alle Tabellen
+            foreach (var entity in builder.Model.GetEntityTypes())
+            {
+                foreach (var property in entity.GetProperties())
+                {
+                    if (property.ClrType == typeof(string) && property.GetColumnType() == "nvarchar(max)")
+                    {
+                        property.SetColumnType("longtext"); // Kompatibler Datentyp für MariaDB
+                    }
+                }
+            }
         }
+
     }
 }

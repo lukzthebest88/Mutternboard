@@ -1,24 +1,27 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Mutterboard.Models;
+using Mutternboard.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// In-Memory Datenbank anstelle von SQL Server
+// Verbindung zur MariaDB herstellen
 builder.Services.AddDbContext<Context>(options =>
-    options.UseInMemoryDatabase("Tasks"));
+    options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"),
+    new MySqlServerVersion(new Version(10, 5, 0))));
 
-// Identity einrichten (keine Best�tigungsmail erforderlich)
-builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
+// Identity einrichten mit eigener `ApplicationRole`
+builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
 {
     options.SignIn.RequireConfirmedAccount = false;
-    options.User.RequireUniqueEmail = true; // (optional, um doppelte E-Mails zu verhindern)
+    options.User.RequireUniqueEmail = true;
 })
-.AddRoles<IdentityRole>()
-.AddEntityFrameworkStores<Context>();
+    .AddDefaultUI()
+    .AddEntityFrameworkStores<Context>()
+    .AddDefaultTokenProviders();
 
 builder.Services.AddControllersWithViews();
-builder.Services.AddRazorPages(); // Muss VOR `builder.Build()` stehen!
+builder.Services.AddRazorPages();
 
 var app = builder.Build();
 
@@ -27,7 +30,7 @@ using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
-    var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+    var roleManager = services.GetRequiredService<RoleManager<ApplicationRole>>();
     await SeedData.Initialize(userManager, roleManager);
 }
 
@@ -40,6 +43,6 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-app.MapRazorPages(); // Hier Razor Pages registrieren
+app.MapRazorPages(); // Razor Pages registrieren
 
 app.Run();

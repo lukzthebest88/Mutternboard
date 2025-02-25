@@ -1,30 +1,31 @@
-# See https://aka.ms/customizecontainer to learn how to customize your debug container and how Visual Studio uses this Dockerfile to build your images for faster debugging.
-
-# This stage is used when running from VS in fast mode (Default for Debug configuration)
+# Basis-Image für den Betrieb (ASP.NET-Image)
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
-USER $APP_UID
 WORKDIR /app
 EXPOSE 8080
 EXPOSE 8081
 
-
-# This stage is used to build the service project
+# Build-Image (SDK-Image zum Bauen des Projekts)
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["Mutternboard/Mutternboard.csproj", "Mutternboard/"]
-RUN dotnet restore "./Mutternboard/Mutternboard.csproj"
-COPY . .
+
+# Kopiere das Projekt und führe `dotnet restore` aus
+COPY ["Mutternboard.csproj", "Mutternboard/"]
 WORKDIR "/src/Mutternboard"
-RUN dotnet build "./Mutternboard.csproj" -c $BUILD_CONFIGURATION -o /app/build
+RUN dotnet restore "Mutternboard.csproj"
 
-# This stage is used to publish the service project to be copied to the final stage
+# Kopiere den gesamten Quellcode und baue das Projekt
+COPY . .
+RUN dotnet build "Mutternboard.csproj" -c Release -o /app/build
+
+# Publizieren der Anwendung
 FROM build AS publish
-ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./Mutternboard.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "Mutternboard.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
-# This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
+# Endgültiges Image (nur das veröffentlichte Projekt kopieren)
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+
+# Definiere den Einstiegspunkt (ENTRYPOINT)
 ENTRYPOINT ["dotnet", "Mutternboard.dll"]
