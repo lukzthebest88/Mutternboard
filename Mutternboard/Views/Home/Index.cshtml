@@ -1,64 +1,182 @@
 ﻿@model IEnumerable<Mutterboard.Models.TaskItem>
 
 <div class="container mt-4">
-    <div class="card shadow-lg p-4">
-        <h2 class="text-center mb-4">
-            @(Model.Any(t => !t.IsCompleted) ? "Deine Aufgaben" : "Alle Aufgaben erledigt 🎉")
-        </h2>
+    <div class="mb-3">
+        <input type="text" id="taskSearch" class="form-control" placeholder="🔍 Aufgaben suchen..." onkeyup="filterTasks()">
+    </div>
 
-        @if (Model.Any(t => !t.IsCompleted))
-        {
-            <div class="table-responsive">
-                <table class="table table-hover text-center align-middle">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>Titel</th>
-                            <th>Beschreibung</th>
-                            <th>Von</th>
-                            <th>Bis</th>
-                            <th>Priorität</th>
-                            <th>Status</th>
-                            <th>Aktionen</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var item in Model.OrderByDescending(t => t.Priority))
-                        {
-                            if (!item.IsCompleted)
-                            {
-                                <tr class="@GetPriorityClass(item.Priority)">
-                                    <td>@item.Title</td>
-                                    <td>@item.Description</td>
-                                    <td>@item.StartDate.ToShortDateString()</td>
-                                    <td>@item.EndDate.ToShortDateString()</td>
-                                    <td><span class="badge @GetPriorityBadge(item.Priority)">@GetPriorityName(item.Priority)</span></td>
-                                    <td>
-                                        <span class="badge @(item.IsCompleted ? "bg-success" : "bg-warning text-dark")">
-                                            @(item.IsCompleted ? "Erledigt" : "Offen")
-                                        </span>
-                                    </td>
-                                    <td>
-                                        @if (!item.IsCompleted)
-                                        {
-                                            <form asp-action="CompleteTask" asp-controller="Task" method="post" class="d-inline">
-                                                <input type="hidden" name="id" value="@item.Id" />
-                                                <button type="submit" class="btn btn-sm btn-success">Erledigen</button>
-                                            </form>
-                                        }
-                                        else
-                                        {
-                                            <span class="text-muted">✔️</span>
-                                        }
-                                    </td>
+    <div class="row">
+        <!-- Linke Spalte: Aufgabenliste -->
+        <div class="col-md-8">
+            <div class="card shadow-lg p-4">
+                <h2 class="text-center mb-4">
+                    @(Model.Any(t => !t.IsCompleted) ? "Deine Aufgaben" : "Alle Aufgaben erledigt 🎉")
+                </h2>
+
+                @if (Model.Any(t => !t.IsCompleted))
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover text-center align-middle" id="taskTable">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Titel</th>
+                                    <th>Beschreibung</th>
+                                    <th>Von</th>
+                                    <th>Bis</th>
+                                    <th>Priorität</th>
+                                    <th>Status</th>
+                                    <th>Planen</th>
+                                    <th>Aktionen</th>
                                 </tr>
-                            }
-                        }
-                    </tbody>
-                </table>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.OrderByDescending(t => t.Priority))
+                                {
+                                    if (!item.IsCompleted)
+                                    {
+                                        <tr class="task-row @GetPriorityClass(item.Priority)">
+                                            <td>@item.Title</td>
+                                            <td>@item.Description</td>
+                                            <td>@item.StartDate.ToShortDateString()</td>
+                                            <td>@item.EndDate.ToShortDateString()</td>
+                                            <td><span class="badge @GetPriorityBadge(item.Priority)">@GetPriorityName(item.Priority)</span></td>
+                                            <td>
+                                                <span class="badge @(item.IsCompleted ? "bg-success" : "bg-warning text-dark")">
+                                                    @(item.IsCompleted ? "Erledigt" : "Offen")
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <button class="btn btn-sm btn-success" onclick="addTaskToList('@item.Title', '@GetPriorityBadge(item.Priority)', '@GetPriorityName(item.Priority)', this)">➕</button>
+                                            </td>
+                                            <td>
+                                                @if (!item.IsCompleted)
+                                                {
+                                                    <form asp-action="CompleteTask" asp-controller="Task" method="post" class="d-inline">
+                                                        <input type="hidden" name="id" value="@item.Id" />
+                                                        <button type="submit" class="btn btn-sm btn-success">Erledigen</button>
+                                                    </form>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">✔️</span>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
             </div>
-        }
+        </div>
+
+        <!-- Rechte Spalte: Panels -->
+        <div class="col-md-4">
+            <!-- Panel: Nächste Fristen -->
+            <div class="card shadow-sm mb-3">
+                <div class="card-header bg-danger text-white">Nächste Fristen</div>
+                <div class="card-body">
+                    <ul class="list-group">
+                        @foreach (var task in Model.Where(t => !t.IsCompleted).OrderBy(t => t.EndDate).Take(5))
+                        {
+                            <li class="list-group-item">@task.Title - @task.EndDate.ToShortDateString()</li>
+                        }
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Panel: Priorisierte Aufgaben -->
+            <div class="card shadow-sm mb-3">
+                <div class="card-header bg-info text-white">Priorisierte Aufgaben</div>
+                <div class="card-body">
+                    <ul class="list-group">
+                        @foreach (var task in Model.Where(t => !t.IsCompleted && t.Priority == "2").Take(5))
+                        {
+                            <li class="list-group-item">@task.Title</li>
+                        }
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Panel: Aufgabenplanung -->
+            <div class="card shadow-sm mb-3">
+                <div class="card-header bg-warning text-dark">Aufgabenplanung <span id="plannedCount" class="badge bg-secondary">0</span></div>
+                <div class="card-body">
+                    <ul id="assignedTasksList" class="list-group" ondrop="drop(event)" ondragover="allowDrop(event)"></ul>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", loadStoredTasks);
+
+    function filterTasks() {
+        let input = document.getElementById("taskSearch").value.toLowerCase();
+        document.querySelectorAll(".task-row").forEach(row => {
+            row.style.display = row.innerText.toLowerCase().includes(input) ? "" : "none";
+        });
+    }
+
+    function addTaskToList(title, badgeClass, priorityName, button) {
+        let list = document.getElementById("assignedTasksList");
+        let newItem = document.createElement("li");
+        newItem.className = "list-group-item d-flex justify-content-between align-items-center";
+        newItem.textContent = title;
+        newItem.draggable = true;
+        newItem.ondragstart = drag;
+
+        let badge = document.createElement("span");
+        badge.className = "badge " + badgeClass;
+        badge.textContent = priorityName;
+
+        let removeBtn = document.createElement("button");
+        removeBtn.className = "btn btn-sm btn-danger ms-2";
+        removeBtn.textContent = "-";
+        removeBtn.onclick = function() {
+            list.removeChild(newItem);
+            button.style.display = "inline-block";
+            updatePlannedCount();
+            saveTasks();
+        };
+
+        newItem.appendChild(badge);
+        newItem.appendChild(removeBtn);
+        list.appendChild(newItem);
+        button.style.display = "none";
+
+        updatePlannedCount();
+        saveTasks();
+    }
+
+    function updatePlannedCount() {
+        document.getElementById("plannedCount").textContent = document.getElementById("assignedTasksList").children.length;
+    }
+
+    function saveTasks() {
+        let tasks = [];
+        document.querySelectorAll("#assignedTasksList li").forEach(li => {
+            tasks.push(li.textContent.replace("-", "").trim());
+        });
+        localStorage.setItem("plannedTasks", JSON.stringify(tasks));
+    }
+
+    function loadStoredTasks() {
+        let tasks = JSON.parse(localStorage.getItem("plannedTasks")) || [];
+        tasks.forEach(title => addTaskToList(title, "bg-secondary", "Geplant", document.createElement("button")));
+    }
+
+    function allowDrop(event) { event.preventDefault(); }
+    function drag(event) { event.dataTransfer.setData("text", event.target.textContent); }
+    function drop(event) {
+        event.preventDefault();
+        let title = event.dataTransfer.getData("text");
+        addTaskToList(title, "bg-secondary", "Geplant", document.createElement("button"));
+    }
+</script>
+
 
 @functions {
     string GetPriorityClass(string priority) => priority switch
