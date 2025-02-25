@@ -17,8 +17,8 @@ builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
     options.User.RequireUniqueEmail = true;
 })
     .AddDefaultUI()
-.AddEntityFrameworkStores<Context>()
-.AddDefaultTokenProviders();
+    .AddEntityFrameworkStores<Context>()
+    .AddDefaultTokenProviders();
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
@@ -43,6 +43,6 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-app.MapRazorPages(); // Hier Razor Pages registrieren
+app.MapRazorPages(); // Razor Pages registrieren
 
 app.Run();
