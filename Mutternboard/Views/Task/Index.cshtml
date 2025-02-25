@@ -1,0 +1,68 @@
+﻿@model IEnumerable<Mutterboard.Models.TaskItem>
+
+<div class="container mt-4">
+    <div class="card shadow-lg p-4">
+        <h2 class="text-center mb-4">Aufgabenverwaltung</h2>
+
+        <div class="text-center mb-4">
+            <a asp-action="Create" class="btn btn-primary">Neue Aufgabe</a>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover text-center align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Titel</th>
+                        <th>Beschreibung</th>
+                        <th>Von</th>
+                        <th>Bis</th>
+                        <th>Priorität</th>
+                        <th>Aktionen</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr class="@GetPriorityClass(item.Priority)">
+                            <td>@item.Title</td>
+                            <td>@item.Description</td>
+                            <td>@item.StartDate.ToShortDateString()</td>
+                            <td>@item.EndDate.ToShortDateString()</td>
+                            <td><span class="badge @GetPriorityBadge(item.Priority)">@item.Priority</span></td>
+                            <td>
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">✏️ Bearbeiten</a>
+                                <form asp-action="DeleteConfirmed" asp-route-id="@item.Id" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Möchtest du diese Aufgabe wirklich löschen?')">🗑️ Löschen</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@functions {
+    string GetPriorityClass(string priority)
+    {
+        return priority switch
+        {
+            "Hoch" => "table-danger",
+            "Mittel" => "table-warning",
+            "Niedrig" => "table-success",
+            _ => "table-light"
+        };
+    }
+
+    string GetPriorityBadge(string priority)
+    {
+        return priority switch
+        {
+            "Hoch" => "bg-danger",
+            "Mittel" => "bg-warning text-dark",
+            "Niedrig" => "bg-success",
+            _ => "bg-secondary"
+        };
+    }
+}
