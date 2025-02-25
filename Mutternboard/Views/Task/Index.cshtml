@@ -28,11 +28,11 @@
                             <td>@item.Description</td>
                             <td>@item.StartDate.ToShortDateString()</td>
                             <td>@item.EndDate.ToShortDateString()</td>
-                            <td><span class="badge @GetPriorityBadge(item.Priority)">@item.Priority</span></td>
+                            <td><span class="badge @GetPriorityBadge(item.Priority)">@GetPriorityName(@item.Priority)</span></td>
                             <td>
-                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">✏️ Bearbeiten</a>
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">✏️</a>
                                 <form asp-action="DeleteConfirmed" asp-route-id="@item.Id" method="post" class="d-inline">
-                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Möchtest du diese Aufgabe wirklich löschen?')">🗑️ Löschen</button>
+                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Möchtest du diese Aufgabe wirklich löschen?')">🗑️</button>
                                 </form>
                             </td>
                         </tr>
@@ -48,9 +48,9 @@
     {
         return priority switch
         {
-            "Hoch" => "table-danger",
-            "Mittel" => "table-warning",
-            "Niedrig" => "table-success",
+            "2" => "table-danger",
+            "1" => "table-warning",
+            "0" => "table-success",
             _ => "table-light"
         };
     }
@@ -59,10 +59,21 @@
     {
         return priority switch
         {
-            "Hoch" => "bg-danger",
-            "Mittel" => "bg-warning text-dark",
-            "Niedrig" => "bg-success",
+            "2" => "bg-danger",
+            "1" => "bg-warning text-dark",
+            "0" => "bg-success",
             _ => "bg-secondary"
+        };
+    }
+
+    string GetPriorityName(string priority)
+    {
+        return priority switch
+        {
+            "2" => "Hoch",
+            "1" => "Mittel",
+            "0" => "Niedrig",
+            _ => "EXTREM"
         };
     }
 }

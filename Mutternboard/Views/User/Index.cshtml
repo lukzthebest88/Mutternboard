@@ -1,0 +1,54 @@
+﻿@model IEnumerable<Mutterboard.Models.ApplicationUser>
+
+<div class="container mt-4">
+    <div class="card shadow-lg p-4">
+        <h2 class="text-center mb-4">👥 Benutzerverwaltung</h2>
+
+        <div class="table-responsive">
+            <table class="table table-hover text-center">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Rolle</th>
+                        <th>Admin</th>
+                        <th>Aktionen</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var user in Model)
+                    {
+                        <tr>
+                            <td>@user.UserName</td>
+                            <td>@user.Email</td>
+                            <td>@(ViewBag.UserRoles[user.Id])</td> <!-- Zeigt die aktuelle Rolle an -->
+                            <td>
+                                @if (ViewBag.UserRoles[user.Id] == "Admin")
+                                {
+                                    <form asp-action="RemoveAdmin" method="post">
+                                        <input type="hidden" name="userId" value="@user.Id" />
+                                        <button type="submit" class="btn btn-sm btn-danger">Admin entfernen</button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <form asp-action="SetAdmin" method="post">
+                                        <input type="hidden" name="userId" value="@user.Id" />
+                                        <button type="submit" class="btn btn-sm btn-success">Admin zuweisen</button>
+                                    </form>
+                                }
+                            </td>
+                            <td>
+                                <form asp-action="Delete" asp-route-id="@user.Id" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Möchtest du diesen Benutzer wirklich löschen?')">🗑️</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <a asp-action="Index" asp-controller="Task" class="btn btn-secondary">Zurück</a>
+    </div>
+</div>

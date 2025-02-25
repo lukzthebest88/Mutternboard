@@ -23,7 +23,7 @@
                             <td>@item.Description</td>
                             <td>@item.StartDate.ToShortDateString()</td>
                             <td>@item.EndDate.ToShortDateString()</td>
-                            <td><span class="badge @GetPriorityBadge(item.Priority)">@item.Priority</span></td>
+                            <td><span class="badge @GetPriorityBadge(item.Priority)">@GetPriorityName(item.Priority)</span></td>
                         </tr>
                     }
                 </tbody>
@@ -35,17 +35,28 @@
 @functions {
     string GetPriorityClass(string priority) => priority switch
     {
-        "Hoch" => "table-danger",
-        "Mittel" => "table-warning",
-        "Niedrig" => "table-success",
+        "2" => "table-danger",
+        "1" => "table-warning",
+        "0" => "table-success",
         _ => "table-light"
     };
 
     string GetPriorityBadge(string priority) => priority switch
     {
-        "Hoch" => "bg-danger",
-        "Mittel" => "bg-warning text-dark",
-        "Niedrig" => "bg-success",
+        "2" => "bg-danger",
+        "1" => "bg-warning text-dark",
+        "0" => "bg-success",
         _ => "bg-secondary"
     };
+
+    string GetPriorityName(string priority)
+    {
+        return priority switch
+        {
+            "2" => "Hoch",
+            "1" => "Mittel",
+            "0" => "Niedrig",
+            _ => "EXTREM"
+        };
+    }
 }

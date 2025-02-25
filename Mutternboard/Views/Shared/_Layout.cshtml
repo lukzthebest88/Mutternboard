@@ -24,6 +24,9 @@
                             <li class="nav-item">
                                 <a class="nav-link" asp-controller="Task" asp-action="Index">Aufgaben</a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="User" asp-action="Index">Benutzerverwaltung</a>
+                            </li>
                         }
                         <ul class="navbar-nav">
                             @if (User.Identity.IsAuthenticated)
