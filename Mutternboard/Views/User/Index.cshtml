@@ -19,7 +19,7 @@
                     @foreach (var user in Model)
                     {
                         <tr>
-                            <td>@user.UserName</td>
+                            <td>@user.UserName.Split('@')[0]</td>
                             <td>@user.Email</td>
                             <td>@(ViewBag.UserRoles[user.Id])</td> <!-- Zeigt die aktuelle Rolle an -->
                             <td>
@@ -49,6 +49,6 @@
             </table>
         </div>
 
-        <a asp-action="Index" asp-controller="Task" class="btn btn-secondary">Zurück</a>
+        <a asp-action="Index" asp-controller="Home" class="btn btn-secondary">Zurück</a>
     </div>
 </div>
