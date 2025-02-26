@@ -8,7 +8,6 @@ namespace Mutterboard.Models
     public class Context : IdentityDbContext<ApplicationUser, ApplicationRole, string>
     {
         public Context(DbContextOptions<Context> options) : base(options) { }
-
         public DbSet<TaskItem> TaskItems { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)

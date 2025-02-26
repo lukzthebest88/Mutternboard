@@ -26,5 +26,10 @@ namespace Mutterboard.Controllers
             var tasks = await _context.TaskItems.Where(t => t.UserId == userId).ToListAsync();
             return View(tasks);
         }
+
+        public async Task<IActionResult> Changelog()
+        {
+            return View();
+        }
     }
 }
