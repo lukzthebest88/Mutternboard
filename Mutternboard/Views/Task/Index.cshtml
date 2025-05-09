@@ -1,93 +1,121 @@
 ﻿@model IEnumerable<Mutterboard.Models.TaskItem>
+@{
+    ViewData["Title"] = "Aufgabenverwaltung";
+}
+<div class="container mt-5">
+    <div class="card shadow-lg border-0 rounded-4">
+        <div class="card-body p-5">
+            <h2 class="text-center mb-5 display-5 fw-bold text-primary">📋 Aufgabenverwaltung</h2>
 
-<div class="container mt-4">
-    <div class="card shadow-lg p-4">
-        <h2 class="text-center mb-4">Aufgabenverwaltung</h2>
+            <div class="d-flex justify-content-center mb-4">
+                <a asp-action="Create" class="btn btn-lg btn-success shadow px-4">
+                    ➕ Neue Aufgabe erstellen
+                </a>
+            </div>
 
-        <div class="text-center mb-4">
-            <a asp-action="Create" class="btn btn-primary">Neue Aufgabe</a>
-        </div>
-
-        <div class="table-responsive">
-            <table class="table table-hover text-center align-middle">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Name</th>
-                        <th>Titel</th>
-                        <th>Beschreibung</th>
-                        <th>Von</th>
-                        <th>Bis</th>
-                        <th>Priorität</th>
-                        <th>Status</th>
-                        <th>Aktionen</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model)
-                    {
-                        <tr class="@GetPriorityClass(item.Priority)">
-                            <td>@(item.User.UserName.Split('@')[0])</td>
-                            <td>@item.Title</td>
-                            <td>@item.Description</td>
-                            <td>@item.StartDate.ToShortDateString()</td>
-                            <td>@item.EndDate.ToShortDateString()</td>
-                            <td><span class="badge @GetPriorityBadge(item.Priority)">@GetPriorityName(item.Priority)</span></td>
-                            <td>
-                                <span class="badge @(item.IsCompleted ? "bg-success" : "bg-warning text-dark")">
-                                    @(item.IsCompleted ? "Erledigt" : "Offen")
-                                </span>
-                            </td>
-                            <td>
-                                @if (!item.IsCompleted)
-                                {
-                                    <form asp-action="CompleteTask" asp-controller="Task" method="post" class="d-inline">
-                                        <input type="hidden" name="id" value="@item.Id" />
-                                        <button type="submit" class="btn btn-sm btn-success">✅</button>
-                                    </form>
-                                }
-                                else
-                                {
-                                    <form asp-action="ReopenTask" asp-controller="Task" method="post" class="d-inline">
-                                        <input type="hidden" name="id" value="@item.Id" />
-                                        <button type="submit" class="btn btn-sm btn-warning">🔄</button>
-                                    </form>
-                                }
-                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-info">✏️</a>
-                                <form asp-action="DeleteConfirmed" asp-route-id="@item.Id" method="post" class="d-inline">
-                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Möchtest du diese Aufgabe wirklich löschen?')">🗑️</button>
-                                </form>
-                            </td>
+            <div class="table-responsive">
+                <table class="table table-hover text-center align-middle rounded-4 overflow-hidden">
+                    <thead class="bg-primary text-white">
+                        <tr>
+                            <th>Benutzer</th>
+                            <th>Titel</th>
+                            <th>Beschreibung</th>
+                            <th>Von</th>
+                            <th>Bis</th>
+                            <th>Priorität</th>
+                            <th>Status</th>
+                            <th>Aktionen</th>
                         </tr>
-                    }
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr class="@GetRowColor(item.Priority)">
+                                <td class="fw-semibold">@item.User.UserName.Split('@')[0]</td>
+                                <td>@item.Title</td>
+                                <td class="text-muted small">@item.Description</td>
+                                <td>@item.StartDate.ToShortDateString()</td>
+                                <td>@item.EndDate.ToShortDateString()</td>
+                                <td>
+                                    <span class="badge rounded-pill px-3 py-2 fs-6 @GetPriorityBadge(item.Priority)">
+                                        @GetPriorityName(item.Priority)
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge rounded-pill px-3 py-2 fs-6 @(item.IsCompleted ? "bg-success" : "bg-warning text-dark")">
+                                        @(item.IsCompleted ? "✅ Erledigt" : "🕒 Offen")
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info" title="Bearbeiten">
+                                            ✏️
+                                        </a>
+
+                                        @if (!item.IsCompleted)
+                                        {
+                                            <form asp-action="CompleteTask" asp-controller="Task" method="post" class="d-inline">
+                                                <input type="hidden" name="id" value="@item.Id" />
+                                                <button type="submit" class="btn btn-sm btn-outline-success" title="Erledigen">
+                                                    ✅
+                                                </button>
+                                            </form>
+                                        }
+                                        else
+                                        {
+                                            <form asp-action="ReopenTask" asp-controller="Task" method="post" class="d-inline">
+                                                <input type="hidden" name="id" value="@item.Id" />
+                                                <button type="submit" class="btn btn-sm btn-outline-warning" title="Wieder öffnen">
+                                                    🔄
+                                                </button>
+                                            </form>
+                                        }
+
+                                        <form asp-action="DeleteConfirmed" asp-route-id="@item.Id" method="post" class="d-inline">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Löschen"
+                                                    onclick="return confirm('Möchtest du diese Aufgabe wirklich löschen?')">
+                                                🗑️
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="text-center mt-4">
+                <a asp-action="Index" asp-controller="Home" class="btn btn-outline-secondary shadow-sm">
+                    ⬅️ Zurück zur Startseite
+                </a>
+            </div>
         </div>
-        <a asp-action="Index" asp-controller="Home" class="btn btn-secondary">Zurück</a>
     </div>
 </div>
 
 @functions {
-    string GetPriorityClass(string priority) => priority switch
+    string GetRowColor(string priority) => priority switch
     {
-        "2" => "table-danger",
-        "1" => "table-warning",
-        "0" => "table-success",
+        "2" => "table-danger bg-opacity-10",
+        "1" => "table-warning bg-opacity-10",
+        "0" => "table-success bg-opacity-10",
         _ => "table-light"
     };
 
     string GetPriorityBadge(string priority) => priority switch
     {
-        "2" => "bg-danger",
+        "2" => "bg-danger text-white",
         "1" => "bg-warning text-dark",
-        "0" => "bg-success",
-        _ => "bg-secondary"
+        "0" => "bg-success text-white",
+        _ => "bg-secondary text-white"
     };
 
     string GetPriorityName(string priority) => priority switch
     {
-        "2" => "Hoch",
-        "1" => "Mittel",
-        "0" => "Niedrig",
-        _ => "EXTREM"
+        "2" => "🔴 Hoch",
+        "1" => "🟡 Mittel",
+        "0" => "🟢 Niedrig",
+        _ => "❓ Unbekannt"
     };
 }

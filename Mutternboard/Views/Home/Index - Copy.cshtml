@@ -52,7 +52,7 @@
     // URLs mit den Ports 81 und 82
     var tvUrl81 = $"http://{ipAddress}:81";
     var webLgsmUrl = $"http://{ipAddress}:82";
-    var fileExchangeUrl = $"http://{ipAddress}:83";
+    var glancesUrl = $"http://192.168.0.2:61208";
 }
 
 <div class="container py-5">
@@ -96,50 +96,35 @@
                     </div>
                 </div>
 
-                <div class="col-12 w-auto mx-auto">
+                <div class="col-12">
                     <div class="card shadow-lg p-4 rounded-4">
                         <h3 class="text-center mb-3">📺 Lökz TV</h3>
-                        <a href="@tvUrl81" target="_blank" class="btn btn-info mt-3 w-auto mx-auto">
-                            Öffnen
+                        <p class="text-center">Klicke auf den Button, um Lökz TV zu öffnen.</p>
+                        <a href="@tvUrl81" target="_blank" class="btn btn-success mt-3">
+                            Lökz TV starten
                         </a>
                         @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
                         {
-                            <div class="mt-4 d-grid gap-2 justify-content-center">
-                                <button class="btn btn-danger w-auto mx-auto" onclick="stopTv()">🛑 Stoppen</button>
-                                <button class="btn btn-warning w-auto mx-auto" onclick="restartTv()">🔄 Neustarten</button>
-                            </div>
-                      
-                        }
-                    </div>
-                </div>
-
-                <div class="col-12 w-auto mx-auto">
-                    <div class="card shadow-lg p-4 rounded-4">
-                        <h3 class="text-center mb-3">📁 File Exchange</h3>
-                        <a href="@fileExchangeUrl" target="_blank" class="btn btn-info mt-3 w-auto mx-auto">
-                            Öffnen
-                        </a>
-                        @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
-                        {
-                                <div class="mt-4 d-grid gap-2 justify-content-center">
-                                      <button class="btn btn-danger w-auto mx-auto" onclick="stopFileExchange()">🛑 Stoppen</button>
-                                  <button class="btn btn-warning w-auto mx-auto" onclick="restartFileExchange()">🔄 Neustarten</button>
+                            <div class="mt-4 d-grid gap-2">
+                                <button class="btn btn-warning" onclick="restartTv()">🔄 Neustarten</button>
+                                <button class="btn btn-danger" onclick="stopTv()">🛑 Stoppen</button>
                             </div>
                         }
                     </div>
                 </div>
 
-                <div class="col-12 w-auto mx-auto">
+                <div class="col-12">
                     <div class="card shadow-lg p-4 rounded-4">
                         <h3 class="text-center mb-3">🌐 Web LGSM</h3>
-                        <a href="@webLgsmUrl" target="_blank" class="btn btn-info mt-3 w-auto mx-auto">
-                            Öffnen
+                        <p class="text-center">Klicke auf den Button, um Web LGSM zu öffnen.</p>
+                        <a href="@webLgsmUrl" target="_blank" class="btn btn-info mt-3">
+                            Web LGSM starten
                         </a>
                         @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
                         {
-                                <div class="mt-4 d-grid gap-2 justify-content-center">
-                                        <button class="btn btn-danger w-auto mx-auto" onclick="stopWebLgsm()">🛑 Stoppen</button>
-                                    <button class="btn btn-warning w-auto mx-auto" onclick="restartWebLgsm()">🔄 Neustarten</button>
+                            <div class="mt-4 d-grid gap-2">
+                                <button class="btn btn-warning" onclick="restartWebLgsm()">🔄 Neustarten</button>
+                                <button class="btn btn-danger" onclick="stopWebLgsm()">🛑 Stoppen</button>
                             </div>
                         }
                     </div>
@@ -228,26 +213,6 @@
             });
         }
     }
-    function restartFileExchange() {
-        if (confirm("File Exchange wirklich neustarten?")) {
-            $.post('/System/RestartFileExchange', function () {
-                alert("File Exchange wird neugestartet.");
-            }).fail(function () {
-                alert("Fehler beim Neustart vom File Exchange.");
-            });
-        }
-    }
-    function stopFileExchange() {
-        if (confirm("File Exchange wirklich stoppen?")) {
-            $.post('/System/StopFileExchange', function () {
-                alert("File Exchange wird gestoppt.");
-            }).fail(function () {
-                alert("Fehler beim Stoppen vom File Exchange.");
-            });
-        }
-    }
-
-
 
     setInterval(updateSystemStats, 5000);
     updateSystemStats();

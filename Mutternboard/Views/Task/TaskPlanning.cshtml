@@ -1,0 +1,146 @@
+﻿@model IEnumerable<Mutterboard.Models.TaskItem>
+@{
+    ViewData["Title"] = "Meine Aufgaben";
+}
+<div class="container py-5">
+    <div class="mb-4">
+        <input type="text" id="taskSearch" class="form-control form-control-lg shadow-sm" placeholder="🔍 Aufgaben suchen..." onkeyup="filterTasks()">
+    </div>
+
+    <div class="row g-4">
+        <!-- Aufgabenliste -->
+        <div class="col-md-8">
+            <h3 class="fw-bold mb-3">🗂️ Aufgabenübersicht</h3>
+            <div class="d-flex flex-column gap-3" id="taskList">
+                @foreach (var item in Model.OrderByDescending(t => t.Priority))
+                {
+                    if (!item.IsCompleted)
+                    {
+                        <div class="card p-3 shadow-sm task-card" draggable="true" ondragstart="drag(event)" data-title="@item.Title.ToLower()">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h5 class="mb-1">@item.Title</h5>
+                                    <p class="mb-2 text-muted">@item.Description</p>
+                                    @{
+                                        var daysDiff = (item.EndDate - DateTime.Today).Days;
+                                        string dueMsg = daysDiff switch
+                                        {
+                                            > 1 => $"(in {daysDiff} Tagen)",
+                                            1 => "(morgen fällig)",
+                                            0 => "(heute fällig)",
+                                            -1 => "(seit 1 Tag fällig)",
+                                            < -1 => $"(seit {Math.Abs(daysDiff)} Tagen fällig)",
+                                        };
+
+                                        string dueColor = daysDiff switch
+                                        {
+                                            > 2 => "text-success",
+                                            1 or 2 => "text-warning",
+                                            0 => "text-primary fw-semibold",
+                                            _ => "text-danger fw-semibold"
+                                        };
+                                    }
+                                    <div class="small text-muted">
+                                        📅 @item.StartDate.ToShortDateString() – @item.EndDate.ToShortDateString()
+                                        <span class="@dueColor ms-1">@dueMsg</span>
+                                    </div>
+                                </div>
+                                <div class="text-end">
+                                    <span class="badge @GetPriorityBadge(item.Priority)">
+                                        @GetPriorityName(item.Priority)
+                                    </span>
+                                    <form asp-action="CompleteTask" asp-controller="Task" method="post" class="d-inline ms-2">
+                                        <input type="hidden" name="id" value="@item.Id" />
+                                        <button type="submit" class="btn btn-sm btn-outline-success">✔️ Erledigt</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+
+        <!-- Aufgabenplanung -->
+        <div class="col-md-4">
+            <h3 class="fw-bold mb-3">🧠 Geplante Aufgaben</h3>
+            <div class="card shadow-sm p-3 bg-light" id="planningArea" ondrop="drop(event)" ondragover="allowDrop(event)">
+                <p class="text-muted">Ziehe Aufgaben hierher, um sie zu planen.</p>
+                <ul class="list-group" id="plannedList"></ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            loadStoredTasks();
+        });
+
+        function filterTasks() {
+            let input = document.getElementById("taskSearch").value.toLowerCase();
+            document.querySelectorAll(".task-card").forEach(card => {
+                const title = card.getAttribute("data-title");
+                card.style.display = title.includes(input) ? "" : "none";
+            });
+        }
+
+        function drag(event) {
+            event.dataTransfer.setData("text", event.target.outerHTML);
+        }
+
+        function allowDrop(event) {
+            event.preventDefault();
+        }
+
+        function drop(event) {
+            event.preventDefault();
+            const data = event.dataTransfer.getData("text");
+            const list = document.getElementById("plannedList");
+            const item = document.createElement("li");
+            item.className = "list-group-item d-flex justify-content-between align-items-center";
+            item.innerHTML = new DOMParser().parseFromString(data, "text/html").body.firstChild.querySelector("h5").innerText +
+                '<button class="btn btn-sm btn-danger" onclick="this.parentElement.remove()">🗑️</button>';
+            list.appendChild(item);
+            savePlannedTasks();
+        }
+
+        function savePlannedTasks() {
+            const planned = [];
+            document.querySelectorAll("#plannedList li").forEach(li => {
+                planned.push(li.innerText);
+            });
+            localStorage.setItem("plannedTasks", JSON.stringify(planned));
+        }
+
+        function loadStoredTasks() {
+            const stored = JSON.parse(localStorage.getItem("plannedTasks") || "[]");
+            const list = document.getElementById("plannedList");
+            stored.forEach(title => {
+                const item = document.createElement("li");
+                item.className = "list-group-item d-flex justify-content-between align-items-center";
+                item.innerHTML = title + '<button class="btn btn-sm btn-danger" onclick="this.parentElement.remove(); savePlannedTasks()">🗑️</button>';
+                list.appendChild(item);
+            });
+        }
+    </script>
+}
+
+@functions {
+    string GetPriorityBadge(string priority) => priority switch
+    {
+        "2" => "bg-danger text-white",
+        "1" => "bg-warning text-dark",
+        "0" => "bg-success text-white",
+        _ => "bg-secondary text-white"
+    };
+
+    string GetPriorityName(string priority) => priority switch
+    {
+        "2" => "Hoch",
+        "1" => "Mittel",
+        "0" => "Niedrig",
+        _ => "Unbekannt"
+    };
+}

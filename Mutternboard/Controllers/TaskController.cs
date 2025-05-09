@@ -42,6 +42,16 @@ namespace Mutterboard.Controllers
             return View(tasks);
         }
 
+        public IActionResult TaskPlanning()
+        {
+            var userId = _userManager.GetUserId(User);
+            var model = _context.TaskItems
+                                .Include(t => t.User)
+                                .Where(t => t.UserId == userId)
+                                .OrderByDescending(t => t.Priority)
+                                .ToList();
+            return View(model);  // lädt Views/Task/TaskPlanning.cshtml
+        }
 
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create()
@@ -191,6 +201,7 @@ namespace Mutterboard.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+
 
     }
 }
