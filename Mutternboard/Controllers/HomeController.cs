@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore;
 using Mutterboard.Models;
 using System.Linq;
 using System.Threading.Tasks;
-
 namespace Mutterboard.Controllers
 {
     [Authorize]

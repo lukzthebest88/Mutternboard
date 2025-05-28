@@ -111,9 +111,6 @@ namespace Mutternboard.Controllers
             return BadRequest();
         }
 
-
-
-
         [HttpPost]
         [Authorize(Roles = "Admin")]
         public IActionResult StopWebLgsm()
@@ -121,6 +118,29 @@ namespace Mutternboard.Controllers
             if (OperatingSystem.IsLinux())
             {
                 Process.Start("bash", "-c \"sudo systemctl stop weblgsm.service\""); // Passe ggf. den Dienstnamen an
+                return Ok();
+            }
+            return BadRequest();
+        }
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        public IActionResult RestartSimplySH()
+        {
+            if (OperatingSystem.IsLinux())
+            {
+                Process.Start("bash", "-c \"sudo systemctl restart simplysh.service\""); // Passe ggf. den Dienstnamen an
+                return Ok();
+            }
+            return BadRequest();
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        public IActionResult StopKI()
+        {
+            if (OperatingSystem.IsLinux())
+            {
+                Process.Start("bash", "-c \"sudo systemctl stop simplysh.service\""); // Passe ggf. den Dienstnamen an
                 return Ok();
             }
             return BadRequest();

@@ -53,6 +53,9 @@
     var tvUrl81 = $"http://{ipAddress}:81";
     var webLgsmUrl = $"http://{ipAddress}:82";
     var fileExchangeUrl = $"http://{ipAddress}:83";
+    var openwebui = $"http://{ipAddress}:85";
+    var simplysh = $"http://{ipAddress}:5100";
+
 }
 
 <div class="container py-5">
@@ -96,7 +99,7 @@
                     </div>
                 </div>
 
-                <div class="col-12 w-auto mx-auto">
+                <div class="col-6 w-auto mx-auto">
                     <div class="card shadow-lg p-4 rounded-4">
                         <h3 class="text-center mb-3">📺 Lökz TV</h3>
                         <a href="@tvUrl81" target="_blank" class="btn btn-info mt-3 w-auto mx-auto">
@@ -113,9 +116,9 @@
                     </div>
                 </div>
 
-                <div class="col-12 w-auto mx-auto">
+                <div class="col-6 w-auto mx-auto">
                     <div class="card shadow-lg p-4 rounded-4">
-                        <h3 class="text-center mb-3">📁 File Exchange</h3>
+                        <h3 class="text-center mb-3">File Exchange</h3>
                         <a href="@fileExchangeUrl" target="_blank" class="btn btn-info mt-3 w-auto mx-auto">
                             Öffnen
                         </a>
@@ -129,9 +132,9 @@
                     </div>
                 </div>
 
-                <div class="col-12 w-auto mx-auto">
+                <div class="col-6 w-auto mx-auto">
                     <div class="card shadow-lg p-4 rounded-4">
-                        <h3 class="text-center mb-3">🌐 Web LGSM</h3>
+                        <h3 class="text-center mb-3">Web LGSM</h3>
                         <a href="@webLgsmUrl" target="_blank" class="btn btn-info mt-3 w-auto mx-auto">
                             Öffnen
                         </a>
@@ -144,12 +147,36 @@
                         }
                     </div>
                 </div>
+                <div class="col-6 w-auto mx-auto">
+                    <div class="card shadow-lg p-4 rounded-4">
+                        <h3 class="text-center mb-3">SimplySH</h3>
+                        <a href="@simplysh" target="_blank" class="btn btn-info mt-3 w-auto mx-auto">
+                            Öffnen
+                        </a>
+                        @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+                        {
+                            <div class="mt-4 d-grid gap-2 justify-content-center">
+                                <button class="btn btn-danger w-auto mx-auto" onclick="stopSimplySH()">🛑 Stoppen</button>
+                                <button class="btn btn-warning w-auto mx-auto" onclick="restartSimplySH()">🔄 Neustarten</button>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div class="col-6 w-auto mx-auto">
+                    <div class="card shadow-lg p-4 rounded-4">
+                        <h3 class="text-center mb-3">Ollama</h3>
+                        <a href="@openwebui" target="_blank" class="btn btn-info mt-3 w-auto mx-auto">
+                            Öffnen
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
+    
     function updateSystemStats() {
         $.get('/System/GetStats', function (data) {
             $('#cpu-usage').text(data.cpu + '%');
@@ -182,9 +209,9 @@
     function restartMutternboard() {
         if (confirm("Hauptservice wirklich neustarten?")) {
             $.post('/System/RestartMutternboard', function () {
-                alert("Der Hauptservice wird neugestartet.");
+                alert("Dienst wird neugestartet.");
             }).fail(function () {
-                alert("Fehler beim Neustart vom Hauptservice.");
+                alert("Fehler beim neustarten des Dienstes!");
             });
         }
     }
@@ -192,9 +219,9 @@
     function restartTv() {
         if (confirm("TV-Dienst wirklich neustarten?")) {
             $.post('/System/RestartTv', function () {
-                alert("TV-Dienst wird neugestartet.");
+                alert("Dienst wird neugestartet.");
             }).fail(function () {
-                alert("Fehler beim Neustart von TV.");
+                alert("Fehler beim neustarten des Dienstes!");
             });
         }
     }
@@ -202,19 +229,37 @@
     function stopTv() {
         if (confirm("TV-Dienst wirklich stoppen?")) {
             $.post('/System/StopTv', function () {
-                alert("TV-Dienst wird gestoppt.");
+                alert("Dienst wird gestoppt.");
             }).fail(function () {
-                alert("Fehler beim Stoppen von TV.");
+                alert("Fehler beim stoppen des Dienstes!");
+            });
+        }
+    }
+    function restartSimplySH() {
+        if (confirm("SimplySH wirklich neustarten?")) {
+            $.post('/System/RestartSimplySH', function () {
+                alert("Dienst wird neugestartet.");
+            }).fail(function () {
+                alert("Fehler beim neustarten des Dienstes!");
             });
         }
     }
 
+    function stopSimplySH() {
+        if (confirm("SimplySH wirklich stoppen?")) {
+            $.post('/System/RestartSimplySH', function () {
+                alert("Dienst wird neugestartet.");
+            }).fail(function () {
+                alert("Fehler beim neustarten des Dienstes!");
+            });
+        }
+    }
     function restartWebLgsm() {
         if (confirm("Web LGSM-Dienst wirklich neustarten?")) {
             $.post('/System/RestartWebLgsm', function () {
-                alert("Web LGSM-Dienst wird neugestartet.");
+                alert("Dienst wird neugestartet.");
             }).fail(function () {
-                alert("Fehler beim Neustart von Web LGSM.");
+                alert("Fehler beim neustarten des Dienstes!");
             });
         }
     }
@@ -222,27 +267,27 @@
     function stopWebLgsm() {
         if (confirm("Web LGSM-Dienst wirklich stoppen?")) {
             $.post('/System/StopWebLgsm', function () {
-                alert("Web LGSM-Dienst wird gestoppt.");
+                alert("Dienst wird gestoppt.");
             }).fail(function () {
-                alert("Fehler beim Stoppen von Web LGSM.");
+                alert("Fehler beim stoppen des Dienstes!");
             });
         }
     }
     function restartFileExchange() {
         if (confirm("File Exchange wirklich neustarten?")) {
             $.post('/System/RestartFileExchange', function () {
-                alert("File Exchange wird neugestartet.");
+                alert("Dienst wird neugestartet.");
             }).fail(function () {
-                alert("Fehler beim Neustart vom File Exchange.");
+                alert("Fehler beim neustarten des Dienstes!");
             });
         }
     }
     function stopFileExchange() {
         if (confirm("File Exchange wirklich stoppen?")) {
             $.post('/System/StopFileExchange', function () {
-                alert("File Exchange wird gestoppt.");
+                alert("Dienst wird gestoppt.");
             }).fail(function () {
-                alert("Fehler beim Stoppen vom File Exchange.");
+                alert("Fehler beim stoppen des Dienstes!");
             });
         }
     }

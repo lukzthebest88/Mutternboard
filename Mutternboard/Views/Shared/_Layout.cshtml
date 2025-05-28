@@ -41,12 +41,6 @@
                     <ul class="navbar-nav ms-auto">
                         @if (User.Identity.IsAuthenticated)
                         {
-                            <li class="nav-item">
-                                <a class="nav-link" asp-controller="Task" asp-action="TaskPlanning">
-                                    📋 Meine Aufgaben
-                                </a>
-                            </li>
-
                             <!-- Dropdown für Benutzerprofil -->
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle text-dark" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -54,18 +48,19 @@
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                                     <li>
+                                        <a class="dropdown-item" asp-controller="Task" asp-action="TaskPlanning">📋 Meine Aufgaben</a>
+                                    <li>
                                         <a class="dropdown-item" asp-controller="Account" asp-action="Profile">⚙️ Profil bearbeiten</a>
                                     </li>
                                     <li>
                                         <a class="dropdown-item" asp-controller="Account" asp-action="ChangePassword">🔒 Passwort ändern</a>
                                     </li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li>
-                                        <form method="post" asp-controller="Account" asp-action="Logout" class="dropdown-item p-0">
-                                            <button type="submit" class="btn btn-link dropdown-item text-danger">🚪 Ausloggen</button>
-                                        </form>
-                                    </li>
                                 </ul>
+                            </li>
+                            <li>
+                                <form method="post" asp-controller="Account" asp-action="Logout" class="dropdown-item p-10">
+                                    <button type="submit" class="btn btn-link dropdown-item text-danger">🚪 Ausloggen</button>
+                                </form>
                             </li>
                         }
                     </ul>
@@ -81,7 +76,7 @@
     </div>
 
     <footer class="bg-light text-center py-3 border-top mt-auto">
-        <small class="text-muted">© @DateTime.Now.Year - Mutternboard</small>
+        <small class="text-muted">© @DateTime.Now.Year - Lökz.de</small>
     </footer>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
