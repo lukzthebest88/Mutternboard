@@ -183,7 +183,7 @@ namespace Mutterboard.Controllers
             _context.TaskItems.Update(task);
             await _context.SaveChangesAsync();
 
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("TaskPlanning", "Task");
         }
 
         [HttpPost]

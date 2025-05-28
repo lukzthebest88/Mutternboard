@@ -3,65 +3,59 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" type="image/x-icon" href="~/favicon.ico" />
     <title>@ViewData["Title"]</title>
+
+    <link rel="icon" type="image/x-icon" href="~/favicon.ico" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/Mutternboard.styles.css" asp-append-version="true" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" />
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
     <header>
         <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
             <div class="container-fluid">
                 <a class="navbar-brand fw-bold text-primary d-flex align-items-center" asp-area="" asp-controller="Home" asp-action="Index">
-                    <i class="bi bi-house-fill me-2"></i> 
+                    <i class="bi bi-house-fill me-2"></i> Home
                 </a>
+
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
                 <div class="collapse navbar-collapse" id="mainNavbar">
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                        @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link" asp-controller="Task" asp-action="Index">
-                                    🗂️ Aufgabenverwaltung
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" asp-controller="User" asp-action="Index">
-                                    👥 Benutzerverwaltung
-                                </a>
-                            </li>
-                        }
-                    </ul>
-
                     <ul class="navbar-nav ms-auto">
                         @if (User.Identity.IsAuthenticated)
                         {
-                            <!-- Dropdown für Benutzerprofil -->
-                            <li class="nav-item dropdown">
+                            <li class="nav-item dropdown p-1">
                                 <a class="nav-link dropdown-toggle text-dark" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     👤 @User.Identity.Name
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                    @if (User.IsInRole("Admin"))
+                                    {
+                                        <li>
+                                            <a class="dropdown-item" asp-controller="Task" asp-action="Index">🗂️ Aufgabenverwaltung</a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" asp-controller="User" asp-action="Index">👥 Benutzerverwaltung</a>
+                                        </li>
+                                    }
                                     <li>
                                         <a class="dropdown-item" asp-controller="Task" asp-action="TaskPlanning">📋 Meine Aufgaben</a>
-                                    <li>
-                                        <a class="dropdown-item" asp-controller="Account" asp-action="Profile">⚙️ Profil bearbeiten</a>
                                     </li>
-                                    <li>
-                                        <a class="dropdown-item" asp-controller="Account" asp-action="ChangePassword">🔒 Passwort ändern</a>
-                                    </li>
+                                    <li><hr class="dropdown-divider" /></li>
+                                    <a class="dropdown-item" asp-controller="Account" asp-action="Profile">⚙️ Profil bearbeiten</a>
+                                    <a class="dropdown-item" asp-controller="Account" asp-action="ChangePassword">🔒 Passwort ändern</a>
                                 </ul>
                             </li>
-                            <li>
-                                <form method="post" asp-controller="Account" asp-action="Logout" class="dropdown-item p-10">
-                                    <button type="submit" class="btn btn-link dropdown-item text-danger">🚪 Ausloggen</button>
-                                </form>
-                            </li>
+                                <li class="nav-item">
+                                    <form method="post" asp-controller="Account" asp-action="Logout" class="d-inline">
+                                        <button type="submit" class="btn btn-link nav-link text-danger" title="Ausloggen">
+                                            <i class="bi bi-box-arrow-right fs-5"></i>
+                                        </button>
+                                    </form>
+                                </li>
                         }
                     </ul>
                 </div>
